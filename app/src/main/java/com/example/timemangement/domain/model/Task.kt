@@ -1,9 +1,9 @@
 package com.example.timemangement.domain.model
 
 data class Task(
-    val id: Long,
+    val id: Long? = null,
     val title: String,
-    val totalTime: Int,
-    val totalTimeInWeek: Int,
+    val totalTime: Int? = null,
+    val totalTimeInWeek: Int? = null,
     val taskColor: Int,
 )

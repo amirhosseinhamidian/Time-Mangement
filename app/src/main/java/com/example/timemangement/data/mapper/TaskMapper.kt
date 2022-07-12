@@ -1,6 +1,6 @@
 package com.example.timemangement.data.mapper
 
-import com.example.timemangement.data.entities.TaskEntity
+import com.example.timemangement.data.local.entities.TaskEntity
 import com.example.timemangement.domain.model.Task
 
 fun TaskEntity.toTask() : Task {
@@ -15,10 +15,21 @@ fun TaskEntity.toTask() : Task {
 
 fun Task.toTaskEntity() : TaskEntity {
     return TaskEntity(
-        id = id,
-        title = title,
-        totalTime = totalTime,
-        totalTimeInWeek = totalTimeInWeek,
+        title = title ,
+        totalTime = totalTime ?: -1,
+        totalTimeInWeek = totalTimeInWeek ?: -1,
         taskColor = taskColor
     )
+}
+
+fun List<TaskEntity>.toTaskList() : List<Task> {
+    return map {
+        it.toTask()
+    }
+}
+
+fun List<Task>.toTaskEntityList() : List<TaskEntity> {
+    return map {
+        it.toTaskEntity()
+    }
 }

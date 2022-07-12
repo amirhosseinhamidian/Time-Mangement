@@ -2,7 +2,7 @@ package com.example.timemangement.di
 
 import android.app.Application
 import androidx.room.Room
-import com.example.timemangement.data.TaskDatabase
+import com.example.timemangement.data.local.TaskDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
