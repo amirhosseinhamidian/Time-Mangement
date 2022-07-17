@@ -1,6 +1,7 @@
 package com.example.timemangement.presenter.add_task
 
 import android.util.Log
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -26,8 +27,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.timemangement.domain.model.Task
+import com.example.timemangement.presenter.components.ListItemPicker
+import com.example.timemangement.presenter.components.NumberPicker
+import com.example.timemangement.presenter.destinations.TimerScreenDestination
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlin.math.abs
 
 @Composable
 @Destination
@@ -37,55 +42,133 @@ fun AddTaskScreen(
 ) {
 
     val title by viewModel.title.observeAsState()
-    val color by viewModel.color.observeAsState()
     var selectedColorIndex by remember { mutableStateOf(-1) }
+    var hourPicker by remember { mutableStateOf(0) }
+    var minutePicker by remember { mutableStateOf(0) }
+
+    val animatedProgress = animateFloatAsState(
+        targetValue = viewModel.progressWeeklyTime(hourPicker,minutePicker),
+        animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
+    ).value
 
     Column(modifier = Modifier.fillMaxSize()) {
-        Spacer(modifier = Modifier.height(36.dp))
-        Text(
-            text = "Add New Task",
-            style = MaterialTheme.typography.h5,
-            modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        TextField(
-            value = title ?: "",
-            onValueChange = viewModel::onTitleChange
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        ColorSelectionGrid(
-            colorSelectionList = listOf(
-                Color(0xFFD97FF0),
-                Color(0xFF7F94F0),
-                Color(0xFF837FF0),
-                Color(0xFF7FD2F0),
-                Color(0xFF7FF0D2),
-                Color(0xFF8EF07F),
-                Color(0xFFE4F07F),
-                Color(0xFFF0BB7F),
-                Color(0xFFF08E7F),
-                Color(0xFFF07F7F),
-            ),
-            selected = { index -> selectedColorIndex == index},
-            tint = { Color.Unspecified },
-        ) { index: Int , item: Color ->
-            selectedColorIndex = index
-            viewModel.colorSelection(item.hashCode())
-        }
+       Column(modifier = Modifier
+           .fillMaxWidth()
+           .weight(1f)) {
+           Spacer(modifier = Modifier.height(36.dp))
+           Text(
+               text = "Add New Task",
+               style = MaterialTheme.typography.h5,
+               modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
+           )
+           Spacer(modifier = Modifier.height(26.dp))
+           OutlinedTextField(
+               value = title ?: "",
+               onValueChange = viewModel::onTitleChange,
+               modifier = Modifier
+                   .fillMaxWidth()
+                   .padding(horizontal = 24.dp),
+               label = { Text(text = "Title of task")}
+           )
+           Spacer(modifier = Modifier.height(26.dp))
+           ColorSelectionGrid(
+               colorSelectionList = listOf(
+                   Color(0xFFD97FF0),
+                   Color(0xFF7F94F0),
+                   Color(0xFF837FF0),
+                   Color(0xFF7FD2F0),
+                   Color(0xFF7FF0D2),
+                   Color(0xFF8EF07F),
+                   Color(0xFFE4F07F),
+                   Color(0xFFF0BB7F),
+                   Color(0xFFF08E7F),
+                   Color(0xFFF07F7F),
+               ),
+               selected = { index -> selectedColorIndex == index},
+               tint = { Color.Unspecified },
+           ) { index: Int , item: Color ->
+               selectedColorIndex = index
+               viewModel.colorSelection(item.hashCode())
+           }
+           
+           Surface(
+               modifier = Modifier
+                   .fillMaxWidth()
+                   .padding(16.dp),
+               shape = MaterialTheme.shapes.large,
+               color = MaterialTheme.colors.surface
+           ) {
+               Column(modifier = Modifier
+                   .padding(16.dp)) {
+                   Text(
+                       text = "Weekly Goal",
+                       style = MaterialTheme.typography.h6
+                   )
+                   Spacer(modifier = Modifier.height(8.dp))
+                   Text(
+                       text = "102h free time",
+                       style = MaterialTheme.typography.subtitle1
+                   )
+                   Spacer(modifier = Modifier.height(24.dp))
+                   Row(
+                       modifier = Modifier.fillMaxWidth(),
+                       horizontalArrangement = Arrangement.Center
+                   ) {
+                       NumberPicker(
+                           value = hourPicker,
+                           onValueChange = {hourPicker = it},
+                           range = 0..99,
+                           textStyle = MaterialTheme.typography.h6
+                       )
+                       Spacer(modifier = Modifier.width(16.dp))
+                       Text(
+                           text = "Hours",
+                           style = MaterialTheme.typography.subtitle2,
+                           modifier = Modifier.align(Alignment.CenterVertically)
+                       )
+                       Spacer(modifier = Modifier.width(32.dp))
+                       ListItemPicker(
+                           value = minutePicker,
+                           onValueChange = {minutePicker=it},
+                           list = listOf(0,15,30,45),
+                           textStyle = MaterialTheme.typography.h6
+                       )
+                       Spacer(modifier = Modifier.width(16.dp))
+                       Text(
+                           text = "Minute",
+                           style = MaterialTheme.typography.subtitle2,
+                           modifier = Modifier.align(Alignment.CenterVertically)
+                       )
+                   }
+                   Spacer(modifier = Modifier.height(32.dp))
+                   LinearProgressIndicator(
+                       progress = animatedProgress,
+                       modifier = Modifier.fillMaxWidth().height(12.dp),
+                       color = viewModel.chooseColorBaseOnUserTimeComplexity(hourPicker,minutePicker)
+                   )
+               }
+           }
+       }
+        
+        
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
             verticalAlignment = Alignment.Bottom,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Button(
+            OutlinedButton(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
-                shape = MaterialTheme.shapes.large,
+                    .weight(1f)
+                    .height(48.dp),
+                border = BorderStroke(2.dp,MaterialTheme.colors.primary),
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent),
                 onClick = {
-                    viewModel.addTask()
+//                    viewModel.addTask()
+                    navigator.navigate(TimerScreenDestination(id = 5))
                 }
             ) {
                 Text(
@@ -97,7 +180,8 @@ fun AddTaskScreen(
             Button(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
+                    .weight(1f)
+                    .height(48.dp),
                 shape = MaterialTheme.shapes.large,
                 colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary),
                 onClick = {  }

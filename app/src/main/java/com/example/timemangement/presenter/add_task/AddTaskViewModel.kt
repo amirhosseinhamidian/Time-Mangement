@@ -1,10 +1,12 @@
 package com.example.timemangement.presenter.add_task
 
 import android.util.Log
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -48,5 +50,31 @@ class AddTaskViewModel @Inject constructor(
 
     fun colorSelection(color: Int) {
         _color.value = color
+    }
+
+    fun progressWeeklyTime(hour: Int, minute: Int): Float {
+        //todo: get free time from user
+        val freeTime = 60.0f
+        val taskTime = when(minute) {
+            15 -> hour + 0.25f
+            30 -> hour + 0.5f
+            45 -> hour + 0.75f
+            else -> hour
+        }
+        return try {
+            taskTime.toFloat()/freeTime
+        }catch (e: Exception){
+            1.0f
+        }
+    }
+
+    fun chooseColorBaseOnUserTimeComplexity(hour: Int, minute: Int): Color {
+        return when(progressWeeklyTime(hour,minute)) {
+            in 0.0f .. 0.6f -> Color.Blue
+            in 0.6f .. 0.75f -> Color(0xFF03C03C)
+            in 0.75f .. 0.85f -> Color(0xFFFFDF00)
+            in 0.85f .. 0.95f -> Color(0xFFFF8C00)
+            else -> Color(0xFFCE1620)
+        }
     }
 }
