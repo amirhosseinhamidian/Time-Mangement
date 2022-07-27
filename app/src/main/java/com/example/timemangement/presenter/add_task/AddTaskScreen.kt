@@ -26,18 +26,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.example.timemangement.domain.model.Task
+import com.example.timemangement.navigation.Screen
 import com.example.timemangement.presenter.components.ListItemPicker
 import com.example.timemangement.presenter.components.NumberPicker
-import com.example.timemangement.presenter.destinations.TimerScreenDestination
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlin.math.abs
 
 @Composable
-@Destination
 fun AddTaskScreen(
-    navigator: DestinationsNavigator,
+    navHostController: NavHostController,
     viewModel: AddTaskViewModel = hiltViewModel()
 ) {
 
@@ -45,6 +43,7 @@ fun AddTaskScreen(
     var selectedColorIndex by remember { mutableStateOf(-1) }
     var hourPicker by remember { mutableStateOf(0) }
     var minutePicker by remember { mutableStateOf(0) }
+    val insertionId = viewModel.id.observeAsState().value
 
     val animatedProgress = animateFloatAsState(
         targetValue = viewModel.progressWeeklyTime(hourPicker,minutePicker),
@@ -143,14 +142,14 @@ fun AddTaskScreen(
                    Spacer(modifier = Modifier.height(32.dp))
                    LinearProgressIndicator(
                        progress = animatedProgress,
-                       modifier = Modifier.fillMaxWidth().height(12.dp),
+                       modifier = Modifier
+                           .fillMaxWidth()
+                           .height(12.dp),
                        color = viewModel.chooseColorBaseOnUserTimeComplexity(hourPicker,minutePicker)
                    )
                }
            }
        }
-        
-        
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -167,8 +166,10 @@ fun AddTaskScreen(
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent),
                 onClick = {
-//                    viewModel.addTask()
-                    navigator.navigate(TimerScreenDestination(id = 5))
+                    viewModel.addTask()
+//                    Log.e("amir",insertionId.toString())
+                    navHostController.popBackStack()
+//                    navHostController.navigate(Screen.Timer.passId(id))
                 }
             ) {
                 Text(

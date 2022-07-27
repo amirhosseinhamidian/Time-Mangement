@@ -33,14 +33,19 @@ class AddTaskViewModel @Inject constructor(
     private val _color : MutableLiveData<Int>  = MutableLiveData(0)
     val color: LiveData<Int> = _color
 
-    fun addTask() {
+    private val _id : MutableLiveData<Long>  = MutableLiveData(0)
+    val id: LiveData<Long> = _id
+
+    fun addTask(){
         viewModelScope.launch {
-            val id = repository.insertTask(
+//            Log.e("amir",_title.value.toString())
+             _id.value = repository.insertTask(
                 Task(
                     title = _title.value!!,
                     taskColor = _color.value!!
                 )
             )
+//            Log.e("amir11",id.value.toString())
         }
     }
 

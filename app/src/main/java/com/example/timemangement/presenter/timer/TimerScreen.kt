@@ -24,18 +24,17 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import androidx.navigation.NavHostController
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlin.math.min
 
 @Composable
-@Destination
 fun TimerScreen(
     viewModel: TimerViewModel = hiltViewModel(),
-    navigator: DestinationsNavigator,
-    id: Int
+    navHostController: NavHostController,
+    id: Long
 ) {
+    val state = viewModel.state
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -43,21 +42,22 @@ fun TimerScreen(
         Column(modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 16.dp)) {
-            Text(
-                text = "Programming",
-                style = MaterialTheme.typography.h5
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Task running for",
-                style = MaterialTheme.typography.h5
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = viewModel.getRunningTime(),
-                style = MaterialTheme.typography.h4
-            )
-
+            state.task?.let {task ->
+                Text(
+                    text = task.title,
+                    style = MaterialTheme.typography.h5
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Task running for",
+                    style = MaterialTheme.typography.h5
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = viewModel.getRunningTime(),
+                    style = MaterialTheme.typography.h4
+                )
+            }
         }
         AnalogClockProgress(
             startAngle = 0f,

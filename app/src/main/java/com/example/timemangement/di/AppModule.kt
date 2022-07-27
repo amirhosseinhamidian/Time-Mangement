@@ -1,11 +1,14 @@
 package com.example.timemangement.di
 
 import android.app.Application
+import android.content.Context
 import androidx.room.Room
+import com.example.timemangement.data.datastore.DataStoreRepository
 import com.example.timemangement.data.local.TaskDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -22,4 +25,10 @@ object AppModule {
             "taskdb"
         ).build()
     }
+    
+    @Provides
+    @Singleton
+    fun provideDataStoreRepository(
+        @ApplicationContext context: Context
+    ) = DataStoreRepository(context = context)
 }

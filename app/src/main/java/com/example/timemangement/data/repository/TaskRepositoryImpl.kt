@@ -1,6 +1,7 @@
 package com.example.timemangement.data.repository
 
 import com.example.timemangement.data.local.TaskDatabase
+import com.example.timemangement.data.mapper.toTask
 import com.example.timemangement.data.mapper.toTaskEntity
 import com.example.timemangement.data.mapper.toTaskList
 import com.example.timemangement.domain.model.Task
@@ -17,9 +18,11 @@ class TaskRepositoryImpl @Inject constructor(
         return dao.insertTask(task.toTaskEntity())
     }
 
-    override fun getAllTask(): Flow<List<Task>> {
-        return flow {
-            dao.getAllTask().toTaskList()
-        }
+    override suspend fun getAllTask(): List<Task> {
+        return dao.getAllTask().toTaskList()
+    }
+
+    override suspend fun getTaskById(id: Long): Task {
+        return dao.getTaskById(id).toTask()
     }
 }
